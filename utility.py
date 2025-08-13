@@ -135,3 +135,4 @@ def get_side_bar():
             st.button("Take a Quiz", type='tertiary', disabled=True)
         if st.button("Logout", type='tertiary'):
             logout()
+            check_credentials()
