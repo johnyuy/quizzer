@@ -7,9 +7,10 @@ def admin_panel():
 
     # Create new user
     st.write("### Create New User")
-    new_username = st.text_input("New username")
-    new_password = st.text_input("New password", type="password")
-    new_role = st.selectbox("Role", ["admin", "student"])
+    new_username = st.text_input("New username", max_chars=20)
+    new_password = st.text_input("New password", type="password", max_chars=20)
+    new_role = st.radio("Role", ["admin", "student"], horizontal=True)
+
     if st.button("Create User"):
         if new_username in users:
             st.error("User already exists!")
@@ -38,3 +39,5 @@ if not check_credentials():
 if st.session_state["role"] == "admin":
     admin_panel()
     get_side_bar()
+else:
+    st.switch_page("pages/unauthorized.py")

@@ -209,3 +209,4 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+/uploaded_docs
