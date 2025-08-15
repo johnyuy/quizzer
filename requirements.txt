@@ -211,14 +211,11 @@ python-dotenv==1.1.1
 python-json-logger==3.3.0
 pytz==2025.2
 pyvis==0.3.2
-pywin32==311
-pywinpty==3.0.0
 pyxnat==1.6.3
 PyYAML==6.0.2
 pyyaml_env_tag==1.1
 pyzmq==27.0.0
 qdrant-client==1.15.1
-qdrant-utils==0.0.1
 rdflib==7.1.4
 referencing==0.36.2
 regex==2025.7.34
