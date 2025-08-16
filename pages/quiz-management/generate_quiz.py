@@ -48,7 +48,7 @@ if st.button("Generate", use_container_width=True):
 
     st.session_state.text = doc_text
 
-    with st.spinner("Generating quiz using AI..."):
+    with st.spinner("Generating Quiz using AI..."):
         start = time.time()
         try:
             questions = generate_questions(doc_text, num_questions)

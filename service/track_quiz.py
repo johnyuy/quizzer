@@ -11,7 +11,6 @@ def get_document_index(doc, docs):
     target = doc["point_id"]
     return next((i for i, p in enumerate(docs) if p['point_id'] == target), 0)
 
-
 def get_gsheet():
     creds = Credentials.from_service_account_info(
         st.secrets["gcp_service_account"],
