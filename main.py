@@ -33,7 +33,7 @@ delete_user = st.Page(
 
 upload_doc_page = st.Page(
     page="pages/doc-management/upload_doc.py",
-    title="Upload",
+    title="Upload Document",
     icon=":material/upload_file:"
     )
 
@@ -47,6 +47,12 @@ generate_quiz_page = st.Page(
     page="pages/quiz-management/generate_quiz.py",
     title="Generate Quiz",
     icon=":material/psychology:"
+    )
+
+manage_quiz_page = st.Page(
+    page="pages/quiz-management/manage_quiz.py",
+    title="Quizzes",
+    icon=":material/task:"
     )
 
 ask_page = st.Page(
@@ -66,7 +72,7 @@ admin_pages = {
     "Quizzer": [home_page, about_page],
     "User Management": [create_user, delete_user],
     "Document Management": [upload_doc_page, manage_doc_page],
-    "Quiz Management": [generate_quiz_page]
+    "Quiz Management": [generate_quiz_page, manage_quiz_page]
 }
 
 student_pages = [home_page, ask_page, quiz_page, about_page]

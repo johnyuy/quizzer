@@ -1,11 +1,12 @@
 import streamlit as st
 import time
+from datetime import datetime, timezone, timedelta
 import uuid
 from urllib.parse import quote, unquote
 
 from service.generate_quiz import generate_questions
 from service.qdrant_utils import list_qdrant_docs, get_document_text
-from service.track_quiz import save_quiz
+from service.track_quiz import save_quiz, uuid_to_short_id
 
 st.set_page_config(page_title="Generate Quiz", layout="centered")
 st.title("Generate Quiz")
@@ -62,12 +63,18 @@ if st.button("Generate", use_container_width=True):
             if(length > 50000):
                 st.error("Questions generated are too long")
             else:
-                quiz_id = str(uuid.uuid4())
+                quiz_id = uuid_to_short_id(str(uuid.uuid4()))
                 print(f"storing new quiz_id={quiz_id}, length={length}")
-                if save_quiz({"quiz_id": quiz_id, "point_id": point_id, "content": str(questions)}):
+                if save_quiz({
+                    "quiz_id": quiz_id,
+                    "point_id": point_id,
+                    "content": str(questions),
+                    "timestamp": datetime.now(timezone(timedelta(hours=8))).isoformat()
+                    }):
                     st.toast("Quiz Generated", icon = ":material/check_circle:")
+                    st.session_state["generated_quiz_id"] = quiz_id
                     time.sleep(1.5)
-                    st.rerun()
+                    st.switch_page("pages/quiz-management/manage_quiz.py")
                 else:
                     st.error("Failed to store questions.")
         else:

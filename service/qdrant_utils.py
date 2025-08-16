@@ -1,6 +1,6 @@
 import streamlit as st
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 
 
 # LangChain & Qdrant
@@ -92,7 +92,7 @@ def save_to_qdrant(doc_text, filename, metadata=None, chunk_size=2000, chunk_ove
         vector = embeddings.embed_query(chunk)
         payload = {
             "filename": filename,
-            "upload_timestamp": datetime.utcnow().isoformat(),
+            "upload_timestamp": datetime.now(timezone(timedelta(hours=8))).isoformat(),
             "chunk_index": idx,
             "chunk_text": chunk
         }

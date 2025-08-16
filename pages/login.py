@@ -18,5 +18,4 @@ with st.form("Login", border=True):
                 st.error("😕 Username or password is incorrect, please try again.")
             else:
                 print(f'{st.session_state["username"]} logged in')
-                # st.switch_page("pages/homepage.py")
                 st.rerun()
