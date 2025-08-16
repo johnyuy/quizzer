@@ -1,9 +1,9 @@
 import streamlit as st
+import pandas as pd
 from datetime import datetime
 from service.extract_text import extract_text
 from service.qdrant_utils import list_qdrant_docs, save_to_qdrant, delete_multiple_from_qdrant
 
-print(st.session_state)
 MAX_DOC_SIZE = 500_000  # max characters (approx 50-70 pages of text)
 
 # === UI ===
@@ -14,8 +14,6 @@ def doc_panel():
     # Initialize session state
     if "reload_docs" not in st.session_state:
         st.session_state.reload_docs = True
-    if "selected_docs" not in st.session_state:
-        st.session_state.selected_docs = []
 
     # --- File Upload Section ---
     uploaded_file = st.file_uploader("Select a document (PDF, DOCX, TXT)", type=["pdf", "docx", "txt"])
@@ -62,33 +60,24 @@ def doc_panel():
         docs = st.session_state.docs
 
     if docs:
-        selected_docs = st.session_state.selected_docs.copy()  # local copy to manage checkboxes
+        docs_df = pd.DataFrame(docs)[["filename", "upload_timestamp"]].rename(
+            columns={
+                "filename" : "Document Name"
+            }
+        )
+        docs_df["upload_timestamp"] = pd.to_datetime(docs_df["upload_timestamp"])
+        docs_df["Uploaded On"] = docs_df["upload_timestamp"].dt.strftime("%d-%b-%Y %I:%M %p")
 
-        # --- Render checkboxes ---
-        for doc in docs:
-            key = f"select_{doc['point_id']}"
-            checked = st.checkbox(
-                f"{doc['filename']} (Uploaded: {doc.get('upload_timestamp','N/A')})",
-                key=key,
-                value=doc['point_id'] in selected_docs
-            )
-            if checked and doc['point_id'] not in selected_docs:
-                selected_docs.append(doc['point_id'])
-            elif not checked and doc['point_id'] in selected_docs:
-                selected_docs.remove(doc['point_id'])
-
-        st.session_state.selected_docs = selected_docs
-
-        # --- Delete selected documents ---
-        if selected_docs and st.button("Delete Selected"):
-            with st.spinner(f"Deleting {len(selected_docs)} document(s)..."):
-                success = delete_multiple_from_qdrant(selected_docs)
-                if success:
-                    st.success(f"Deleted {len(selected_docs)} document(s).")
-                    # Reset selection and reload docs
-                    st.session_state.selected_docs = []
-                    st.session_state.reload_docs = True
-                    st.rerun()
+        print(docs_df)
+        st.data_editor(
+            docs_df[["Document Name", "Uploaded On"]],
+            column_config={
+                "Document Name" : st.column_config.Column(width="large"),
+                "Uploaded On" : st.column_config.Column(width="small")
+            },
+            hide_index=True,
+            disabled=True
+        )
     else:
         st.caption("No documents stored yet.")
 

@@ -37,6 +37,18 @@ upload_doc_page = st.Page(
     icon=":material/upload_file:"
     )
 
+manage_doc_page = st.Page(
+    page="pages/doc-management/manage_doc.py",
+    title="Documents",
+    icon=":material/collections_bookmark:"
+    )
+
+generate_quiz_page = st.Page(
+    page="pages/quiz-management/generate_quiz.py",
+    title="Generate Quiz",
+    icon=":material/psychology:"
+    )
+
 ask_page = st.Page(
     page="pages/student/ask.py",
     title="Learn",
@@ -49,10 +61,12 @@ quiz_page = st.Page(
     icon=":material/task:"
     )
 
+# Grouping menu items
 admin_pages = {
     "Quizzer": [home_page, about_page],
     "User Management": [create_user, delete_user],
-    "Document Management": [upload_doc_page]
+    "Document Management": [upload_doc_page, manage_doc_page],
+    "Quiz Management": [generate_quiz_page]
 }
 
 student_pages = [home_page, ask_page, quiz_page, about_page]
