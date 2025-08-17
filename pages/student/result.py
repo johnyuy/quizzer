@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import ast
-from service.track_results import load_results_by_username
+from service.track_results import load_results_by_username, int_keys_to_str
 
 
 username = st.session_state["username_logged"]
@@ -36,10 +36,6 @@ with st.spinner("Loading"):
     filtered_df = result_df.copy()
     filtered_df = filtered_df.sort_values(by="Taken On", ascending=False)
     filtered_df["Answers"] = filtered_df["Answers"].apply(ast.literal_eval)
-    def int_keys_to_str(d):
-        if isinstance(d, dict):
-            return {str(k): v for k, v in d.items()}
-        return d
     filtered_df["Answers"] = filtered_df["Answers"].apply(int_keys_to_str)
 
     if selected_document != "All":

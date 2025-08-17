@@ -1,8 +1,11 @@
 import streamlit as st
+import pandas as pd
+import ast
 from datetime import datetime
 import time
 from service.qdrant_utils import list_qdrant_docs, delete_multiple_from_qdrant
 from service.track_quiz import get_document_index
+from service.track_results import int_keys_to_str, load_results_by_document
 
 
 @st.dialog("Confirm Delete")
@@ -20,6 +23,37 @@ def confirm_delete(document):
             time.sleep(1.5)
             st.rerun()
 
+
+@st.dialog("Results", width="large")
+def view_result(result):
+    if not result:
+        st.write("No results found.")
+    else:
+        result_df = pd.DataFrame(result[1:], columns=result[0])
+        result_df = result_df.drop(columns=["result_id","point_id"]).rename(
+            columns={
+                "quiz_id" : "Quiz#",
+                "filename" : "Document",
+                "username" : "Username",
+                "score" : "Score",
+                "answers" : "Answers",
+                "timestamp" : "Taken On",
+        })
+        result_df["Taken On"] = pd.to_datetime(result_df["Taken On"])
+        final_df = result_df.copy()
+        final_df.sort_values(by="Taken On", ascending=False)
+        final_df["Answers"] = final_df["Answers"].apply(ast.literal_eval)
+        final_df["Answers"] = final_df["Answers"].apply(int_keys_to_str)
+        st.dataframe(
+            final_df,
+            column_config={
+                "Answers" : st.column_config.JsonColumn(
+                    "Answers (double click to expand)", 
+                    help="click to expand",
+                    width=210),
+                "Score": st.column_config.NumberColumn(width=50)
+            },
+            hide_index=True)
 
 MAX_DOC_SIZE = 500_000  # max characters (approx 50-70 pages of text)
 
@@ -75,8 +109,10 @@ with st.container(horizontal=True, width='stretch', horizontal_alignment='left')
                         index=get_document_index(document, docs)
                         st.session_state["selected_document_index_for_quiz_generation"]=index
                         st.switch_page("pages/quiz-management/generate_quiz.py")
-                    if st.button("Results", icon=":material/file_download:", key=f"quiz-result-{document['point_id']}", width=105):
-                        print(f"Downloading results for {document['point_id']}")
+                    if st.button("Results", key=f"quiz-result-{document['point_id']}", width=105):
+                        print(f"Checking results for {document['point_id']}")
+                        results = load_results_by_document(document['point_id'])
+                        view_result(results)
             
                             
                     

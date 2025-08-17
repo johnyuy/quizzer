@@ -20,24 +20,30 @@ def load_all_results():
     records = sheet.get_all_records()
     return [list(record.values()) for record in records]
 
+@st.cache_data(ttl=15)
 def load_results_by_document(point_id):
     sheet = get_results_gsheet()
-    point_id_col = sheet.col_values(2)
+    point_id_col = sheet.col_values(3)
     matching_rows = []
     for idx, value in enumerate(point_id_col, start=1):
         if value == point_id:  # exact match
             row_data = sheet.row_values(idx)
             matching_rows.append(row_data)
+    if matching_rows:
+        matching_rows.insert(0, sheet.row_values(1))
     return matching_rows
 
+@st.cache_data(ttl=15)
 def load_results_by_quiz_id(quiz_id):
     sheet = get_results_gsheet()
-    quiz_id_col = sheet.col_values(1)
+    quiz_id_col = sheet.col_values(2)
     matching_rows = []
     for idx, value in enumerate(quiz_id_col, start=1):
         if value == quiz_id:  # exact match
             row_data = sheet.row_values(idx)
             matching_rows.append(row_data)
+    if matching_rows:
+        matching_rows.insert(0, sheet.row_values(1))
     return matching_rows
 
 @st.cache_data(ttl=15)
@@ -73,3 +79,8 @@ def save_result(result):
 
 def string_to_uuid(s: str) -> uuid.UUID:
     return str(uuid.uuid5(uuid.NAMESPACE_DNS, s))
+
+def int_keys_to_str(d):
+    if isinstance(d, dict):
+        return {str(k): v for k, v in d.items()}
+    return d

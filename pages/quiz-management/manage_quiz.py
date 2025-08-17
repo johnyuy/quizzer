@@ -1,9 +1,40 @@
 import streamlit as st
 import ast
+import pandas as pd
 from datetime import datetime
 from service.track_quiz import load_quizzes, load_quizzes_by_document, get_document_index, delete_quiz
+from service.track_results import load_results_by_quiz_id, int_keys_to_str
 from service.qdrant_utils import list_qdrant_docs
 
+@st.dialog("Results", width="large")
+def view_result(result):
+    if not result:
+        st.write("No results found.")
+    else:
+        result_df = pd.DataFrame(result[1:], columns=result[0])
+        result_df = result_df.drop(columns=["quiz_id", "result_id","point_id"]).rename(
+            columns={
+                "username" : "Username",
+                "filename" : "Document Name",
+                "score" : "Score",
+                "answers" : "Answers",
+                "timestamp" : "Taken On",
+        })
+        result_df["Taken On"] = pd.to_datetime(result_df["Taken On"])
+        final_df = result_df.copy()
+        final_df.sort_values(by="Taken On", ascending=False)
+        final_df["Answers"] = final_df["Answers"].apply(ast.literal_eval)
+        final_df["Answers"] = final_df["Answers"].apply(int_keys_to_str)
+        st.dataframe(
+            final_df,
+            column_config={
+                "Answers" : st.column_config.JsonColumn(
+                    "Answers (double click to expand)", 
+                    help="click to expand",
+                    width=210),
+                "Score": st.column_config.NumberColumn(width=50)
+            },
+            hide_index=True)
 
 st.title("View Quizzes")
 st.write("")
@@ -55,7 +86,6 @@ with st.spinner("loading"):
         st.info("There are no quizzes generated from this document.")
     
     else:
-
         quizzes = []
         for data in raw_quizzes:
             questions = ast.literal_eval(data[2])
@@ -80,8 +110,10 @@ with st.spinner("loading"):
                                         st.write(f"{k+1}) {option}")
                             with st.expander("Answer", expanded=False, icon=":material/check_circle:"):
                                 st.write(question["correct_answer"])
-                if st.button("Results", icon=":material/file_download:", key=f"quiz-result-{i}", use_container_width=True):
+                if st.button("Results", key=f"quiz-result-{i}", use_container_width=True):
                     print(f"View results for quiz id={quiz['quiz_id']}")
+                    results = load_results_by_quiz_id(quiz['quiz_id'])
+                    view_result(results)
                 if st.button("",icon=':material/delete:', key=f"quiz-delete-{i}", use_container_width=True, type='primary'):
                     print(f"Delete quiz id={quiz['quiz_id']}")
                     if delete_quiz(quiz['quiz_id']):
