@@ -95,9 +95,9 @@ result_page = st.Page(
 # Grouping menu items
 admin_pages = {
     "Quizzer": [home_page, about_page, methodology_page],
-    "User Management": [create_user, delete_user],
     "Document Management": [upload_doc_page, manage_doc_page],
-    "Quiz Management": [generate_quiz_page, manage_quiz_page]
+    "Quiz Management": [generate_quiz_page, manage_quiz_page],
+    "User Management": [create_user, delete_user]
 }
 
 student_pages = [home_page, ask_page, practice_page, quiz_page, result_page, about_page, methodology_page]
