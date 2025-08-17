@@ -17,16 +17,8 @@ svg_file = "./resources/Flowchart.svg"
 with open(svg_file, "r", encoding="utf-8") as f:
     svg_content = f.read()
 
-# Wrap the SVG in a responsive container
-html_code = f"""
-<div style="
-    width: 100%;
-    height: 100%;        /* Full viewport height */
-    overflow: auto;       /* Scrollbars if SVG too large */
-">
-    {svg_content}
-</div>
-"""
+st.image(svg_content, use_container_width=True)
+
 
 # Render the SVG in Streamlit
-components.html(html_code, height=800, scrolling=True)
+# components.html(html_code, height=800, scrolling=True)
