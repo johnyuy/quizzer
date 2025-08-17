@@ -10,6 +10,7 @@ def get_document_index(doc, docs):
     target = doc["point_id"]
     return next((i for i, p in enumerate(docs) if p['point_id'] == target), 0)
 
+@st.cache_resource(ttl=15)
 def get_gsheet():
     creds = Credentials.from_service_account_info(
         st.secrets["gcp_service_account"],
@@ -19,11 +20,13 @@ def get_gsheet():
     sheet = client.open_by_key(st.secrets["sheets"]["quizzes"])
     return sheet.sheet1  # first worksheet
 
+@st.cache_data(ttl=15)
 def load_quizzes():
     sheet = get_gsheet()
     records = sheet.get_all_records()
     return [list(record.values()) for record in records]
 
+@st.cache_data(ttl=15)
 def load_quizzes_by_document(point_id):
     sheet = get_gsheet()
     point_id_col = sheet.col_values(2)
