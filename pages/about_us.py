@@ -16,7 +16,7 @@ st.header("📌 Objectives")
 st.write("""
     - Develop an **intuitive application** that enables users to upload documents for **quiz generation** and **question answering**.  
     - Provide an **engaging user interface** that encourages learning and self-assessment.  
-    - Support diverse question formats, including **multiple-choice**, **fill-in-the-blank**, and **true/false**.  
+    - Support diverse question formats, including **multiple-choice**, **short-answer**, and **true/false**.  
     - Offer **customizable quizzes** tailored to users’ preferences and needs.  
     - Deliver **analytics and performance insights** to help users track progress.  
     - Design the system to be **extensible**, allowing seamless integration of new topics and content.  
@@ -28,7 +28,7 @@ st.header("📊 Data Sources")
 st.write("""
 The quiz questions are sourced from the documents uploaded by users.
 - The uploaded documents are stored in Qdrant, a vector database, for efficient retrieval and processing.
-- These documents are used for :
+- This vectorDB is used for :
     - generate quizzes 
     - question answering.
 """)

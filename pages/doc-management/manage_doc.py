@@ -10,15 +10,15 @@ from service.track_results import int_keys_to_str, load_results_by_document
 
 @st.dialog("Confirm Delete")
 def confirm_delete(document):
-    st.write(f"Delete {document["filename"]} (uploaded on {document["upload_timestamp"]})? ")
+    st.write(f"Delete {document['filename']} (uploaded on {document['upload_timestamp']})? ")
     if st.button("Confirm"):
-        print(f"Confirm delete {document["filename"]}")
+        print(f"Confirm delete {document['filename']}")
         success = False
-        with st.spinner(f"Deleting {document["filename"]}..."):
+        with st.spinner(f"Deleting {document['filename']}..."):
             success = delete_multiple_from_qdrant([document["point_id"]])
             time.sleep(1.5)
         if success:
-            st.success(f"Deleted {document["filename"]}.")
+            st.success(f"Deleted {document['filename']}.")
             st.session_state.reload_docs = True
             time.sleep(1.5)
             st.rerun()
@@ -98,7 +98,7 @@ with st.container(horizontal=True, width='stretch', horizontal_alignment='left')
                 with st.container(width=220, height=100, border=False, vertical_alignment='top'):
                     st.markdown(f"""<div class="title">{document['filename']}</div>""", unsafe_allow_html=True)
                     dt = datetime.fromisoformat(document['upload_timestamp'])
-                    st.caption(f"Uploaded {dt.strftime("%d-%b-%Y %I:%M %p")}")
+                    st.caption(f"Uploaded {dt.strftime('%d-%b-%Y %I:%M %p')}")
                 with st.container(width=35, border=False, vertical_alignment='top'):
                     if st.button("", icon=':material/delete:', key=f"delete-{document['point_id']}", use_container_width=True):
                         print(f"To delete {document['filename']}")

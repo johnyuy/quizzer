@@ -100,9 +100,9 @@ with st.spinner("loading"):
         for i, quiz in enumerate(quizzes):
             dt = datetime.fromisoformat(quiz['timestamp'])
             with st.container(horizontal=True):
-                with st.expander(label=f"Quiz#{quiz['quiz_id']}  -  Generated {dt.strftime("%d-%b-%Y %I:%M %p")}", expanded=i==max-1, width=500):
+                with st.expander(label=f"Quiz#{quiz['quiz_id']}  -  Generated {dt.strftime('%d-%b-%Y %I:%M %p')}", expanded=i==max-1, width=500):
                     for j, question in enumerate(quiz["content"]):
-                        with st.expander(label=f"Question#{j+1}: {question["question"]}", expanded=False, icon=":material/help:", width=500):
+                        with st.expander(label=f"Question#{j+1}: {question['question']}", expanded=False, icon=":material/help:", width=500):
                             type = question["type"]
                             if type == "multiple_choice":
                                 with st.expander("Options", expanded=False):
