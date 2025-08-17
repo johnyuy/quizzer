@@ -81,7 +81,7 @@ quizzer_page = st.Page(
 result_page = st.Page(
     page="pages/student/result.py",
     title="Results",
-    icon=":material/assignment_turned_in:"
+    icon=":material/leaderboard:"
     )
 
 # Grouping menu items

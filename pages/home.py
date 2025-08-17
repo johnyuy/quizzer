@@ -22,11 +22,14 @@ if role == "admin":
             st.page_link("pages/quiz-management/manage_quiz.py", icon=":material/task:", width="stretch")
 
 elif role == "student":
-    ask, quiz = st.columns(2)
+    ask, quiz, results = st.columns(3)
     with ask:
          with st.container(border=True, height=80, vertical_alignment='center'):
              st.page_link("pages/student/ask.py", icon=":material/auto_stories:", width="stretch")
     with quiz:
         with st.container(border=True, height=80, vertical_alignment='center'):
             st.page_link("pages/student/quizzer.py", icon=":material/task:", width="stretch")
+    with results:
+        with st.container(border=True, height=80, vertical_alignment='center'):
+            st.page_link("pages/student/result.py", icon=":material/leaderboard:", width="stretch")
     
