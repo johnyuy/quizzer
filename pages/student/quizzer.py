@@ -1,5 +1,6 @@
 import streamlit as st
 import ast
+import time
 from datetime import datetime, timezone, timedelta
 from service.track_quiz import load_quizzes, load_quizzes_by_document, get_document_index
 from service.qdrant_utils import list_qdrant_docs
@@ -7,11 +8,11 @@ from service.validation import validate_mcq_or_tf, validate_short_answer
 from service.track_results import save_result, string_to_uuid
 from gspread.exceptions import APIError
 
-
 def reset():
     for key, default in {
         "questions": None,
         "q_index": None,
+        "v_index": None,
         "user_answers": {},
         "score": 0,
         "verified": False,
@@ -26,12 +27,18 @@ def reset():
 def clear():
     st.session_state["questions"] = None
     st.session_state["q_index"] = None
+    st.session_state["v_index"] = None
     st.session_state["user_answers"] = {}
     st.session_state["score"] = 0
     st.session_state["verified"] = False
     st.session_state["correct"] = False
     st.session_state["text"] = None
     st.session_state["start"] = ""
+
+
+def is_current():
+    return st.session_state["q_index"] == st.session_state["v_index"]
+
 
 @st.dialog("🎉 Quiz Completed!")
 def show_result(score: int, total : int, rerun : bool = True):
@@ -117,6 +124,7 @@ try:
                 reset()
                 st.session_state["questions"] = quiz["content"]
                 st.session_state["q_index"] = 0
+                st.session_state["v_index"] = 0
                 st.session_state["score"] = 0
                 st.session_state["user_answers"] = {}
                 st.session_state["verified"] = False
@@ -134,64 +142,78 @@ try:
             st.caption(title)
 
             completed = False
+
+
             with st.expander(f"### Question {q_idx + 1}/{len(st.session_state["questions"])}: {question['question']}", expanded=True):
 
+                print(f'start, current q_index = {st.session_state["q_index"]}, v_index = {st.session_state["v_index"]}')
                 input_key = f"user_answer_{q_idx}"
                 user_answer = None
                 if question["type"] == "multiple_choice":
-                    user_answer = st.radio("Choose one:", question["options"], key=input_key)
+                    user_answer = st.radio("Choose one:", question["options"], key=input_key, disabled=st.session_state["v_index"]>st.session_state["q_index"])
                 elif question["type"] == "true_false":
-                    user_answer = st.radio("Select True or False:", ["True", "False"], key=input_key)
+                    user_answer = st.radio("Select True or False:", ["True", "False"], key=input_key, disabled=st.session_state["v_index"]>st.session_state["q_index"])
                 elif question["type"] == "short_answer":
-                    user_answer = st.text_input("Your answer:", key=input_key)
+                    user_answer = st.text_input("Your answer:", key=input_key, disabled=st.session_state["v_index"]>st.session_state["q_index"])
 
-                with st.spinner(""):
-                    if st.button("Verify Answer"):
-                        if user_answer:
-                            correct_answer = question["correct_answer"]
+                # with st.spinner(""):
+                if st.button("Verify Answer", use_container_width=True, disabled=st.session_state["v_index"]>st.session_state["q_index"]):
+                    st.session_state["v_index"]+=1
 
-                            if question["type"] in ["multiple_choice", "true_false"]:
-                                is_correct = validate_mcq_or_tf(user_answer, correct_answer)
-                            else:
-                                is_correct = validate_short_answer(user_answer, correct_answer)
-
-                            st.session_state.verified = True
-                            st.session_state.correct = is_correct
-
-                            st.session_state.user_answers[q_idx] = {
-                                "question": question["question"],
-                                "your_answer": user_answer,
-                                "correct_answer": correct_answer,
-                                "is_correct": is_correct
-                            }
-
-                            if is_correct:
-                                st.session_state.score += 1
-                            # st.rerun()
+                    print(f'verify button pressed, current q_index = {st.session_state["q_index"]}, v_index = {st.session_state["v_index"]}')
+                    if user_answer:
+                        correct_answer = question["correct_answer"]
+                        if question["type"] in ["multiple_choice", "true_false"]:
+                            is_correct = validate_mcq_or_tf(user_answer, correct_answer)
                         else:
-                            st.warning("Please enter or select an answer first.")
+                            is_correct = validate_short_answer(user_answer, correct_answer)
 
-                    if st.session_state.verified:
-                        if st.session_state.correct:
-                            st.success("✅ Correct!")
-                        else:
-                            st.error(f"❌ Incorrect. Correct answer: **{question['correct_answer']}**")
 
-                        explanation = question.get("explanation", "")
-                        if explanation:
-                            st.info(f"ℹ️ **Explanation:** {explanation}")
+                        st.session_state.verified = True
+                        st.session_state.correct = is_correct
 
-                        source_excerpt = question.get("source_excerpt", "")
-                        if source_excerpt:
-                            st.code(f"📄 Source: {source_excerpt}", language="markdown")
+                        st.session_state.user_answers[q_idx] = {
+                            "question": question["question"],
+                            "your_answer": user_answer,
+                            "correct_answer": correct_answer,
+                            "is_correct": is_correct
+                        }
 
-                        if q_idx + 1 < len(st.session_state.questions):
-                            if st.button("Next Question"):
-                                st.session_state.q_index += 1
-                                st.session_state.verified = False
-                                st.rerun()
-                        else:
-                            completed = True
+                        if is_correct:
+                            st.session_state.score += 1
+                        
+                    else:
+                        st.warning("Please enter or select an answer first.")
+                    st.rerun()
+
+                if st.session_state.verified:
+                    if st.session_state.correct:
+                        st.success("✅ Correct!")
+                    else:
+                        st.error(f"❌ Incorrect. Correct answer: **{question['correct_answer']}**")
+
+                    explanation = question.get("explanation", "")
+                    if explanation:
+                        st.info(f"ℹ️ **Explanation:** {explanation}")
+
+                    source_excerpt = question.get("source_excerpt", "")
+                    if source_excerpt:
+                        st.code(f"📄 Source: {source_excerpt}", language="markdown")
+
+                    if q_idx + 1 < len(st.session_state.questions):
+                        if st.button("Next Question", use_container_width=True):
+                            st.session_state.q_index += 1
+                            st.session_state.verified = False
+                            # wait 2 seconds
+                            progress = st.progress(0)
+                            for i in range(21): 
+                                progress.progress(i/21)
+                                time.sleep(0.1)
+                            progress.empty()
+                            st.rerun()
+
+                    else:
+                        completed = True
             if(completed):
                 if save_result({
                     "result_id" : string_to_uuid(
@@ -211,4 +233,13 @@ try:
                     show_result(st.session_state.score, len(st.session_state.questions), False)
 except APIError as e:
     print("APIError occurred:", e)
-    st.error("Error encountered. Please try again.")
+    
+    # wait 10 seconds
+    with st.spinner("Request quota limit exceeded, please wait..."):
+        progress = st.progress(0)
+        for i in range(201): 
+            percent = int(i / 200 * 100)  # scale 0–200 → 0–100
+            progress.progress(percent)
+            time.sleep(0.1)
+        progress.empty()
+    st.rerun()
