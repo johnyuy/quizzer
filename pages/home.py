@@ -22,14 +22,30 @@ if role == "admin":
             st.page_link("pages/quiz-management/manage_quiz.py", icon=":material/task:", width="stretch")
 
 elif role == "student":
-    ask, quiz, results = st.columns(3)
+    ask, practice, quiz, results = st.columns(4)
     with ask:
          with st.container(border=True, height=80, vertical_alignment='center'):
              st.page_link("pages/student/ask.py", icon=":material/auto_stories:", width="stretch")
+    with practice:
+         with st.container(border=True, height=80, vertical_alignment='center'):
+             st.page_link("pages/student/practice.py", icon=":material/edit_note:", width="stretch")
     with quiz:
         with st.container(border=True, height=80, vertical_alignment='center'):
-            st.page_link("pages/student/quizzer.py", icon=":material/task:", width="stretch")
+            st.page_link("pages/student/quiz.py", icon=":material/task:", width="stretch")
     with results:
         with st.container(border=True, height=80, vertical_alignment='center'):
             st.page_link("pages/student/result.py", icon=":material/leaderboard:", width="stretch")
+
+with st.expander("Important Notice", expanded=True):
+    st.caption("""IMPORTANT NOTICE: This web application is a prototype developed for educational purposes only.  
+               The information provided here is NOT intended for real-world usage and should not be relied upon for making any decisions,
+               especially those related to financial, legal, or healthcare matters.
+               """)
+    st.caption("""
+               Furthermore, please be aware that the LLM may generate inaccurate or incorrect information.
+               You assume full responsibility for how you use any generated output.
+               """)
+    st.caption("""
+               Always consult with qualified professionals for accurate and personalized advice.
+               """)
     

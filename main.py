@@ -74,16 +74,16 @@ ask_page = st.Page(
     icon=":material/auto_stories:"
     )
 
-# quiz_page = st.Page(
-#     page="pages/student/quiz.py",
-#     title="Quiz",
-#     icon=":material/task:"
-#     )
+practice_page = st.Page(
+    page="pages/student/practice.py",
+    title="Practice",
+    icon=":material/edit_note:"
+    )
 
-quizzer_page = st.Page(
-    page="pages/student/quizzer.py",
+quiz_page = st.Page(
+    page="pages/student/quiz.py",
     title="Quiz",
-    icon=":material/task:"
+    icon=":material/assignment:"
     )
 
 result_page = st.Page(
@@ -100,8 +100,10 @@ admin_pages = {
     "Quiz Management": [generate_quiz_page, manage_quiz_page]
 }
 
-student_pages = [home_page, ask_page, quizzer_page, result_page, about_page, methodology_page]
+student_pages = [home_page, ask_page, practice_page, quiz_page, result_page, about_page, methodology_page]
 
+if "dark_mode" not in st.session_state:
+    st.session_state.dark_mode = False
 
 logged_in = st.session_state.get("credentials_correct", False)
 role = st.session_state.get("role", "")

@@ -1,4 +1,3 @@
-import os
 import time
 import streamlit as st
 from typing import List
@@ -6,14 +5,16 @@ from typing import List
 from service.qdrant_utils import list_qdrant_docs, build_vectorstore, get_document_chunks
 from openai import OpenAI
 
-# ----------------- Config -----------------
-st.set_page_config(page_title="📄 RAG Chat", layout="centered")
+current_page = "ask"
+if st.session_state.get("last_page") != current_page:
+    st.session_state.last_page = current_page
 
 OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 # ----------------- UI Header -----------------
-st.title("Learn from Document")
+st.title("Learn")
+st.caption("Start your learning by asking a question.")
 
 # Load list of docs from Qdrant
 docs = list_qdrant_docs()
@@ -30,7 +31,7 @@ filename = selected["filename"]
 st.caption(f"Selected: **{filename}**")
 
 # Query input
-query = st.text_input("Ask a question about this document")
+query = st.text_input("Ask a question")
 k = st.slider("How many passages to retrieve", min_value=2, max_value=10, value=4)
 
 # ----------------- Retrieval helper -----------------

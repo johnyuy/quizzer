@@ -3,11 +3,13 @@ import pandas as pd
 import ast
 from service.track_results import load_results_by_username, int_keys_to_str
 
+current_page = "result"
+if st.session_state.get("last_page") != current_page:
+    st.session_state.last_page = current_page
 
 username = st.session_state["username_logged"]
 
 st.title(f"{str(username).title()}'s Results")
-
 
 results = load_results_by_username(username)
 

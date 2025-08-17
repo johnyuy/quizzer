@@ -27,20 +27,23 @@ st.write("""
 st.header("📊 Data Sources")
 st.write("""
 The quiz questions are sourced from the documents uploaded by users.
-- The uploaded documents are stored in Qdrant, a vector database, for efficient retrieval and processing.
-- This vectorDB is used for :
-    - generate quizzes 
-    - question answering.
+- The uploaded documents are stored in **Qdrant**, a vector database, for efficient retrieval and processing.
+    - This vectorDB is used for :
+        - Generating quizzes. 
+        - Processing questions and answers.
+- **Gspread** API is used to persist user account, generated quizzes and results data. 
 """)
 
 # Features
 st.header("⚡ Features")
 st.write("""
 - ✅ User-friendly interface powered by Streamlit.  
+- ✅ Role-based application can be used by both testers and learners.  
 - ✅ Multiple question types with randomized order.  
 - ✅ Scoring system with instant feedback.  
 - ✅ Leaderboard support for tracking progress (future enhancement).  
 - ✅ Modular structure to allow to upload new documents and generate new question banks easily.  
+
 """)
 
 
