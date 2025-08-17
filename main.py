@@ -74,10 +74,15 @@ ask_page = st.Page(
 
 quizzer_page = st.Page(
     page="pages/student/quizzer.py",
-    title="Take Quiz",
+    title="Quiz",
     icon=":material/task:"
     )
 
+result_page = st.Page(
+    page="pages/student/result.py",
+    title="Results",
+    icon=":material/assignment_turned_in:"
+    )
 
 # Grouping menu items
 admin_pages = {
@@ -87,7 +92,7 @@ admin_pages = {
     "Quiz Management": [generate_quiz_page, manage_quiz_page]
 }
 
-student_pages = [home_page, ask_page, quizzer_page, about_page]
+student_pages = [home_page, ask_page, quizzer_page, result_page, about_page]
 
 
 logged_in = st.session_state.get("credentials_correct", False)

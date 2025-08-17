@@ -1,6 +1,5 @@
 import streamlit as st
 import ast
-import uuid
 from datetime import datetime, timezone, timedelta
 from service.track_quiz import load_quizzes, load_quizzes_by_document, get_document_index
 from service.qdrant_utils import list_qdrant_docs
@@ -39,10 +38,11 @@ def show_result(score: int, total : int, rerun : bool = True):
     st.write(f"Final Score: {score} / {total}")
     if st.button("Done"):
         clear()
-        if rerun:
-            st.rerun()
-        else:
-            st.switch_page("pages/student/quizzer.py")
+        st.switch_page("pages/student/result.py")
+        # if rerun:
+        #     st.rerun()
+        # else:
+        #     st.switch_page("pages/student/quizzer.py")
 
 try:
     st.title("Test Your Knowledge")

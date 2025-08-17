@@ -68,7 +68,6 @@ def doc_panel():
         docs_df["upload_timestamp"] = pd.to_datetime(docs_df["upload_timestamp"])
         docs_df["Uploaded On"] = docs_df["upload_timestamp"].dt.strftime("%d-%b-%Y %I:%M %p")
 
-        print(docs_df)
         st.data_editor(
             docs_df[["Document Name", "Uploaded On"]],
             column_config={

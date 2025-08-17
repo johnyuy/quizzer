@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.header(f"Welcome, {st.session_state["username_logged"]}!")
+st.header(f"Welcome, {str(st.session_state["username_logged"]).title()}!")
 st.caption(f"##### As {st.session_state["role"]}, you can..")
 role = st.session_state.get("role", "")
 if role == "admin":

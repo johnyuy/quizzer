@@ -4,7 +4,7 @@ import time
 import gspread
 from google.oauth2.service_account import Credentials
 
-@st.cache_data(ttl=15)
+@st.cache_resource(ttl=15)
 def get_results_gsheet():
     creds = Credentials.from_service_account_info(
         st.secrets["gcp_service_account"],
@@ -38,6 +38,19 @@ def load_results_by_quiz_id(quiz_id):
         if value == quiz_id:  # exact match
             row_data = sheet.row_values(idx)
             matching_rows.append(row_data)
+    return matching_rows
+
+@st.cache_data(ttl=15)
+def load_results_by_username(username):
+    sheet = get_results_gsheet()
+    username_col = sheet.col_values(5)
+    matching_rows = []
+    for idx, value in enumerate(username_col, start=1):
+        if value == username:  # exact match
+            row_data = sheet.row_values(idx)
+            matching_rows.append(row_data)
+    if matching_rows:
+        matching_rows.insert(0, sheet.row_values(1))
     return matching_rows
 
 def save_result(result):
