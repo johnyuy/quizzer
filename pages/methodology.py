@@ -11,7 +11,7 @@ st.set_page_config(
 st.title("📊 Methodology (Flow Chart)")
 
 # Path to your SVG file
-svg_file = ".\\resources\\Flowchart.svg"
+svg_file = "./resources/Flowchart.svg"
 
 # Read the SVG content
 with open(svg_file, "r", encoding="utf-8") as f:
