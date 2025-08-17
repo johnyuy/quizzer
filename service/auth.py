@@ -71,3 +71,4 @@ def logout():
     for key in ["credentials_correct", "role", "username_logged", "password", "username"]:
         if key in st.session_state:
             del st.session_state[key]
+    st.rerun()
