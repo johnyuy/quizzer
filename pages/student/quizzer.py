@@ -2,7 +2,7 @@ import streamlit as st
 import ast
 import uuid
 from datetime import datetime, timezone, timedelta
-from service.track_quiz import load_quizzes, load_quizzes_by_document, get_document_index, uuid_to_short_id
+from service.track_quiz import load_quizzes, load_quizzes_by_document, get_document_index
 from service.qdrant_utils import list_qdrant_docs
 from service.validation import validate_mcq_or_tf, validate_short_answer
 from service.track_results import save_result, string_to_uuid
