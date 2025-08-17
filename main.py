@@ -1,5 +1,9 @@
 import streamlit as st
+import warnings
 from service.auth import logout
+
+from langchain_core._api.deprecation import LangChainDeprecationWarning
+warnings.filterwarnings("ignore", category=LangChainDeprecationWarning)
 
 login_page = st.Page(
     page="pages/login.py",
@@ -62,11 +66,11 @@ ask_page = st.Page(
     icon=":material/auto_stories:"
     )
 
-quiz_page = st.Page(
-    page="pages/student/quiz.py",
-    title="Quiz",
-    icon=":material/task:"
-    )
+# quiz_page = st.Page(
+#     page="pages/student/quiz.py",
+#     title="Quiz",
+#     icon=":material/task:"
+#     )
 
 quizzer_page = st.Page(
     page="pages/student/quizzer.py",
@@ -83,7 +87,7 @@ admin_pages = {
     "Quiz Management": [generate_quiz_page, manage_quiz_page]
 }
 
-student_pages = [home_page, ask_page, quiz_page, quizzer_page, about_page]
+student_pages = [home_page, ask_page, quizzer_page, about_page]
 
 
 logged_in = st.session_state.get("credentials_correct", False)

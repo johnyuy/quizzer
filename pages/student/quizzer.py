@@ -18,7 +18,8 @@ def reset():
         "verified": False,
         "correct": False,
         "text": None,
-        "selected_doc": None
+        "selected_doc": None,
+        "start" : ""
     }.items():
         if key not in st.session_state:
             st.session_state[key] = default
@@ -31,13 +32,17 @@ def clear():
     st.session_state["verified"] = False
     st.session_state["correct"] = False
     st.session_state["text"] = None
+    st.session_state["start"] = ""
 
 @st.dialog("🎉 Quiz Completed!")
-def show_result(answers):
-    st.write(f"Final Score: {st.session_state.score} / {len(st.session_state.questions)}")
+def show_result(score: int, total : int, rerun : bool = True):
+    st.write(f"Final Score: {score} / {total}")
     if st.button("Done"):
         clear()
-        st.rerun()
+        if rerun:
+            st.rerun()
+        else:
+            st.switch_page("pages/student/quizzer.py")
 
 try:
     st.title("Test Your Knowledge")
@@ -50,7 +55,6 @@ try:
     # --- Fetch documents only when needed ---
     if st.session_state.reload_docs:
         with st.spinner("loading..."):
-            print("loading docs")
             docs = list_qdrant_docs()
             st.session_state.docs = docs
             st.session_state["reload_docs"] = False
@@ -62,9 +66,9 @@ try:
         st.stop()
 
 
-    doc = None
+    selected_document = None
     if "selected_doc" in st.session_state:
-        doc = st.session_state["selected_doc"]
+        selected_document = st.session_state["selected_doc"]
 
     doc_map = {f"{doc['filename']} (Uploaded: {doc['upload_timestamp']})": doc for doc in docs}
     options = list(doc_map.keys())
@@ -72,8 +76,8 @@ try:
 
     index = 0
 
-    if doc:
-        index = get_document_index(doc, docs) + 1
+    if selected_document:
+        index = get_document_index(selected_document, docs) + 1
 
 
     selected_label = st.selectbox("Select a Document", options, index=index, on_change=clear)
@@ -116,9 +120,10 @@ try:
                 st.session_state["score"] = 0
                 st.session_state["user_answers"] = {}
                 st.session_state["verified"] = False
+                st.session_state["start"] = datetime.now(timezone(timedelta(hours=8))).isoformat()
                 st.rerun()
 
-        
+
         if "questions" in st.session_state and st.session_state["questions"] is not None:
             
             q_idx = st.session_state.q_index
@@ -188,18 +193,22 @@ try:
                         else:
                             completed = True
             if(completed):
-                save_result({
-                    "result_id" : string_to_uuid(f"{quiz['point_id']}-{quiz['quiz_id']}-{st.session_state["username_logged"]}"),
+                if save_result({
+                    "result_id" : string_to_uuid(
+                        f"{quiz['point_id']}-{quiz['quiz_id']}-{st.session_state["username_logged"]}-{st.session_state["start"]}"),
                     "quiz_id" : quiz['quiz_id'],
                     "point_id" : quiz['point_id'],
                     "filename" : filename,
                     "username" : st.session_state["username_logged"],
                     "score" : st.session_state.score,
                     "answers" : str(st.session_state.user_answers),
-                    "timestamp": datetime.now(timezone(timedelta(hours=8))).isoformat()
-                })
-                
-                show_result(st.session_state.user_answers)
-                
+                    "timestamp": st.session_state["start"]
+                }):
+                    print(f"User {st.session_state["username_logged"]} completed quiz id {quiz['quiz_id']}")
+                    show_result(st.session_state.score, len(st.session_state.questions))
+                else:
+                    print("Unable to save result, duplicate id")
+                    show_result(st.session_state.score, len(st.session_state.questions), False)
 except APIError as e:
     print("APIError occurred:", e)
+    st.error("Error encountered. Please try again.")

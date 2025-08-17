@@ -28,5 +28,5 @@ elif role == "student":
              st.page_link("pages/student/ask.py", icon=":material/auto_stories:", width="stretch")
     with quiz:
         with st.container(border=True, height=80, vertical_alignment='center'):
-            st.page_link("pages/student/quiz.py", icon=":material/task:", width="stretch")
+            st.page_link("pages/student/quizzer.py", icon=":material/task:", width="stretch")
     

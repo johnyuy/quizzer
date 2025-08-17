@@ -1,9 +1,10 @@
 import streamlit as st
 import uuid
+import time
 import gspread
 from google.oauth2.service_account import Credentials
 
-
+@st.cache_data(ttl=15)
 def get_results_gsheet():
     creds = Credentials.from_service_account_info(
         st.secrets["gcp_service_account"],
@@ -12,6 +13,7 @@ def get_results_gsheet():
     client = gspread.authorize(creds)
     sheet = client.open_by_key(st.secrets["sheets"]["quizzes"])
     return sheet.get_worksheet(1)  # second worksheet
+
 
 def load_all_results():
     sheet = get_results_gsheet()
@@ -40,9 +42,10 @@ def load_results_by_quiz_id(quiz_id):
 
 def save_result(result):
     sheet = get_results_gsheet()
-    # TODO
-    # if username in users:
-    #     st.error("User already exists!")
+    quiz_id_col = sheet.col_values(1)
+    id = result["result_id"]
+    if id in quiz_id_col:
+        return False
     new_row = [
         result["result_id"],
         result["quiz_id"],
@@ -53,7 +56,7 @@ def save_result(result):
         result["answers"],
         result["timestamp"]] 
     sheet.append_row(new_row)
+    return True
 
 def string_to_uuid(s: str) -> uuid.UUID:
-    # UUID5 uses SHA-1, deterministic for (namespace, name) pair
-    return uuid.uuid5(uuid.NAMESPACE_DNS, s)
+    return str(uuid.uuid5(uuid.NAMESPACE_DNS, s))
