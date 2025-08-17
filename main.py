@@ -5,6 +5,8 @@ from service.auth import logout
 from langchain_core._api.deprecation import LangChainDeprecationWarning
 warnings.filterwarnings("ignore", category=LangChainDeprecationWarning)
 
+st.set_page_config(layout="centered")
+
 login_page = st.Page(
     page="pages/login.py",
     title="Login",
@@ -22,6 +24,12 @@ about_page = st.Page(
     page="pages/about_us.py",
     title="About",
     icon=":material/info:"
+    )
+
+methodology_page = st.Page(
+    page="pages/methodology.py",
+    title="Methodology",
+    icon=":material/thumb_up:"
     )
 
 create_user = st.Page(
@@ -86,13 +94,13 @@ result_page = st.Page(
 
 # Grouping menu items
 admin_pages = {
-    "Quizzer": [home_page, about_page],
+    "Quizzer": [home_page, about_page, methodology_page],
     "User Management": [create_user, delete_user],
     "Document Management": [upload_doc_page, manage_doc_page],
     "Quiz Management": [generate_quiz_page, manage_quiz_page]
 }
 
-student_pages = [home_page, ask_page, quizzer_page, result_page, about_page]
+student_pages = [home_page, ask_page, quizzer_page, result_page, about_page, methodology_page]
 
 
 logged_in = st.session_state.get("credentials_correct", False)
@@ -112,7 +120,7 @@ if logged_in:
             st.rerun()
 else:
     pg = st.navigation(
-        [login_page, about_page]
+        [login_page, about_page, methodology_page]
     )
 
 pg.run()
