@@ -58,6 +58,8 @@ try:
     # Initialize session state
     if "reload_docs" not in st.session_state:
         st.session_state.reload_docs = True
+    if "quizzes" not in st.session_state:
+        st.session_state["quizzes"] = []
 
     # --- Fetch documents only when needed ---
     if st.session_state.reload_docs:
@@ -72,44 +74,37 @@ try:
         st.caption("No documents stored yet.")
         st.stop()
 
-
     selected_document = None
     if "selected_doc" in st.session_state:
         selected_document = st.session_state["selected_doc"]
 
     doc_map = {f"{doc['filename']} (Uploaded: {doc['upload_timestamp']})": doc for doc in docs}
     options = list(doc_map.keys())
-    options.insert(0, "All")
 
-    index = 0
+    selected_label = st.selectbox("Select a Document", options, on_change=clear)
 
-    if selected_document:
-        index = get_document_index(selected_document, docs) + 1
-
-
-    selected_label = st.selectbox("Select a Document", options, index=index, on_change=clear)
-    st.write("")
-
-    if selected_label == "All":
-        raw_quizzes = load_quizzes()
-    else:
+    quizzes = st.session_state["quizzes"]
+    if not quizzes or (doc_map[selected_label]["point_id"] != selected_document["point_id"]):
+        
         filter_doc = doc_map[selected_label]
+        st.session_state["selected_doc"] = filter_doc
         raw_quizzes = load_quizzes_by_document(filter_doc["point_id"])
-
-    if not raw_quizzes:
-        st.info("There are no quizzes generated from this document.")
-        st.stop()
-
-    quizzes = []
-    for data in raw_quizzes:
-        questions = ast.literal_eval(data[2])
-        quiz = {
-            "quiz_id" : data[0],
-            "point_id" : data[1],
-            "timestamp" : data[3],
-            "content" : questions
-            }
-        quizzes.append(quiz) 
+        
+        if not raw_quizzes:
+            st.info("There are no quizzes generated from this document.")
+            st.stop()
+    
+        
+        for data in raw_quizzes:
+            questions = ast.literal_eval(data[2])
+            quiz = {
+                "quiz_id" : data[0],
+                "point_id" : data[1],
+                "timestamp" : data[3],
+                "content" : questions
+                }
+            quizzes.append(quiz) 
+        st.session_state["quizzes"] = quizzes
 
     quiz_map = {f"Quiz#{quiz['quiz_id']}  -  Generated {datetime.fromisoformat(quiz['timestamp']).strftime("%d-%b-%Y %I:%M %p")}": quiz for i, quiz in enumerate(quizzes)}
     quiz_options = list(quiz_map.keys())
@@ -146,7 +141,6 @@ try:
 
             with st.expander(f"### Question {q_idx + 1}/{len(st.session_state["questions"])}: {question['question']}", expanded=True):
 
-                print(f'start, current q_index = {st.session_state["q_index"]}, v_index = {st.session_state["v_index"]}')
                 input_key = f"user_answer_{q_idx}"
                 user_answer = None
                 if question["type"] == "multiple_choice":
@@ -160,7 +154,6 @@ try:
                 if st.button("Verify Answer", use_container_width=True, disabled=st.session_state["v_index"]>st.session_state["q_index"]):
                     st.session_state["v_index"]+=1
 
-                    print(f'verify button pressed, current q_index = {st.session_state["q_index"]}, v_index = {st.session_state["v_index"]}')
                     if user_answer:
                         correct_answer = question["correct_answer"]
                         if question["type"] in ["multiple_choice", "true_false"]:
@@ -204,10 +197,10 @@ try:
                         if st.button("Next Question", use_container_width=True):
                             st.session_state.q_index += 1
                             st.session_state.verified = False
-                            # wait 2 seconds
+                            # wait 1 seconds
                             progress = st.progress(0)
-                            for i in range(21): 
-                                progress.progress(i/21)
+                            for i in range(11): 
+                                progress.progress(i/11)
                                 time.sleep(0.1)
                             progress.empty()
                             st.rerun()
