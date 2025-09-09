@@ -12,12 +12,12 @@ Generate {num_questions} quiz questions based on the following text.
 
 Return a JSON array of questions. Each question must include:
 - question: string
-- type: one of ["multiple_choice", "true_false", "short_answer"]
+- type: one of ["multiple_choice", "true_false"]
 - options: list of 3–4 strings (only for multiple_choice)
 - correct_answer: string
 - explanation: 2–4 sentence explanation for the correct answer
 - source_excerpt: a 2–5 sentence quote or paraphrase from the text that supports the answer
-
+For "true_false" questions, start the question with "True or False:" which is followed by a statement.
 Respond only with the JSON array.
 
 Text:
